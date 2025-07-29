@@ -4,64 +4,81 @@
 //
 //  Created by Paweł Kłosowicz on 11/07/2025.
 //
-
 import SwiftUI
 
 public struct MessageBubbleView<Content: View>: View {
-    let outerBackgroundColor: Color
-    let innerBackgroundColor: Color
-    var showArrow: Bool = true
+    let outerBackgroundColor: Color?
+    let innerBackgroundColor: Color?
+    var showArrow: Bool = false
     @State var size: CGSize = .zero
+    let innerTrapezoidPaddingTop: CGFloat = 3
+    let innerTrapezoidPaddingBottom: CGFloat = 5
+    let innerTrapezoidPaddingLeading: CGFloat = 5
+    let innerTrapezoidPaddingTrailing: CGFloat = 20
+    let outerConfig: MessageBackgroundTrapezoidConfiguration?
+    let innerConfig: MessageBackgroundTrapezoidConfiguration?
+    
+    var contentPaddingTop: CGFloat {
+        return innerTrapezoidPaddingTop + (innerConfig?.paddingTop() ?? 0)
+    }
+    var contentPaddingBottom: CGFloat {
+        return innerTrapezoidPaddingBottom + (innerConfig?.paddingBottom() ?? 0)
+    }
+    var contentPaddingLeading: CGFloat {
+        return innerTrapezoidPaddingLeading + (innerConfig?.paddingLeading(self.size) ?? 0) + 3
+    }
+    var contentPaddingTrailing: CGFloat {
+        return innerTrapezoidPaddingTrailing + (innerConfig?.paddingTrailing() ?? 0)
+    }
     
     @ViewBuilder
     let content: () -> Content
     
     public init(
-        outerBackgroundColor: Color = .white,
-        innerBackgroundColor: Color = .black,
-        showArrow: Bool = true,
+        outerBackgroundColor: Color? = .white,
+        innerBackgroundColor: Color? = .black,
+        showArrow: Bool = false,
         @ViewBuilder content: @escaping () -> Content
     ) {
         self.outerBackgroundColor = outerBackgroundColor
         self.innerBackgroundColor = innerBackgroundColor
         self.showArrow = showArrow
         self.content = content
+        if outerBackgroundColor != nil {
+            self.outerConfig = MessageBackgroundTrapezoidConfiguration.outerMessageBackgroundTrapezoid(showArrow: showArrow)
+        } else { self.outerConfig = nil }
+        if innerBackgroundColor != nil {
+            self.innerConfig = MessageBackgroundTrapezoidConfiguration.innerMessageBackgroundTrapezoid(showArrow: showArrow)
+        } else { self.innerConfig = nil }
     }
     
     @ViewBuilder
     public var body: some View {
         content()
-            .padding(.top, size.height * InnerMessageBackgroundTrapezoid.topLeftWeights.y)
-            .padding(.bottom, size.height * (1-InnerMessageBackgroundTrapezoid.bottomLeftWeights.y))
-            .padding(.leading, size.width * InnerMessageBackgroundTrapezoid.topLeftWeights.x)
-            .padding(.trailing, size.width * (1-InnerMessageBackgroundTrapezoid.bottomRightWeights.x))
-            .clipShape(                    InnerMessageBackgroundTrapezoid(showArrow: showArrow))
-            .background(
-                GeometryReader { proxy in
-                    InnerMessageBackgroundTrapezoid(showArrow: showArrow)
-                        .fill(innerBackgroundColor)
-                        .preference(key: SizePreferenceKey.self, value: proxy.size)
-                }
-            )
-            .background(
-                OuterMessageBackgroundTrapezoid(showArrow: showArrow)
-                    .fill(outerBackgroundColor)
-            )
-            .fixedSize(horizontal: false, vertical: true)
-            .onPreferenceChange(SizePreferenceKey.self) { size in
-                self.size = size
+            .onGeometryChange(for: CGSize.self, of: \.size) {
+                self.size = $0
             }
-    }
-}
-
-#Preview {
-    VStack {
-        MessageBubbleView {
-            Text("test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test abcdefghijklmnqwerty w da d adawkd kawdk akdwkd kawk dakw kdak kwadk awdk akwd kad kakd kaw dkadk kad gjrdg djrgjdrg nrgjn sjfn aijnefija neijfn iajwenf iajwenf iajnfijna weiofj naewoifjn awiejfn aoijewnf iajwenf iajwnef oiajwen oiajnwefoi jnewoifj naweoijnf aowijenf oiajwenf oijanwfe oijawenf oijawnefoi jnaoeifjn aoiewjfn aoijwenf oaijenf oiajenf ijanwfij aneofijnaoeijfnaoijenf aoijenf oiajnewf oiajnewfo ijane ofijnaoeiwfjn aoiwejfn adadwdawda")
-                .multilineTextAlignment(.leading)
-            
-                .colorInvert()
-        }
-        .background(.gray)
+            .padding(.top, contentPaddingTop)
+            .padding(.bottom, contentPaddingBottom)
+            .padding(.leading, contentPaddingLeading)
+            .padding(.trailing, contentPaddingTrailing)
+            .background {
+                ZStack {
+                    if let outerBackgroundColor,
+                       let outerConfig {
+                        MessageBackgroundTrapezoid(config: outerConfig)
+                            .fill(outerBackgroundColor)
+                    }
+                    if let innerBackgroundColor,
+                       let innerConfig {
+                        MessageBackgroundTrapezoid(config: innerConfig)
+                            .fill(innerBackgroundColor)
+                            .padding(.top, innerTrapezoidPaddingTop)
+                            .padding(.bottom, innerTrapezoidPaddingBottom)
+                            .padding(.leading, innerTrapezoidPaddingLeading)
+                            .padding(.trailing, innerTrapezoidPaddingTrailing)
+                    }
+                }
+            }
     }
 }

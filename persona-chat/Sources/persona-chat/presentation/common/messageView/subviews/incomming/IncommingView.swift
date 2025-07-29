@@ -11,9 +11,23 @@ public struct IncommingView: View {
     
     @State private var size: CGSize = .zero
     let dotCount: Int = 3
+    let innerConfig: MessageBackgroundTrapezoidConfiguration = .innerMessageBackgroundTrapezoid(showArrow: false)
+    
+    var contentPaddingTop: CGFloat {
+        return innerConfig.paddingTop()
+    }
+    var contentPaddingBottom: CGFloat {
+        return innerConfig.paddingBottom()
+    }
+    var contentPaddingLeading: CGFloat {
+        return innerConfig.paddingLeading(self.size) + 3
+    }
+    var contentPaddingTrailing: CGFloat {
+        return innerConfig.paddingTrailing()
+    }
     
     public var body: some View {
-        OuterMessageBackgroundTrapezoid(showArrow: false)
+        MessageBackgroundTrapezoid(config: innerConfig)
             .background(
                 GeometryReader { proxy in
                     Color.clear
@@ -41,15 +55,10 @@ public struct IncommingView: View {
                     }
                     
                 }
-                .padding(.top, size.height * OuterMessageBackgroundTrapezoid.topLeftWeights.y)
-                .padding(.bottom, size.height * (1-OuterMessageBackgroundTrapezoid.bottomLeftWeights.y))
-                .padding(.leading, size.width * OuterMessageBackgroundTrapezoid.topLeftWeights.x)
-                .padding(.trailing, size.width * (1-OuterMessageBackgroundTrapezoid.bottomRightWeights.x))
+                .padding(.top, contentPaddingTop)
+                .padding(.bottom, contentPaddingBottom)
+                .padding(.leading, contentPaddingLeading)
+                .padding(.trailing, contentPaddingTrailing)
             }
     }
 }
-
-#Preview {
-    IncommingView()
-}
-

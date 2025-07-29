@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct DynamicHorizontalOffset: ViewModifier {
-    let isCurrentUserMessage: Bool
+    let sentByCurrentUser: Bool
     let containerWidth: CGFloat
     @State var contentWidth: CGFloat = .zero
     
@@ -20,13 +20,13 @@ struct DynamicHorizontalOffset: ViewModifier {
                 self.contentWidth = newValue
             }
             .frame(maxWidth: .infinity,
-                   alignment: isCurrentUserMessage ? .trailing : .leading)
+                   alignment: sentByCurrentUser ? .trailing : .leading)
             .offset(x: calculateOffset(fullWidth: containerWidth,
                                        contentWidth: contentWidth))
   }
     func calculateOffset(fullWidth: CGFloat,
                          contentWidth: CGFloat) -> CGFloat {
-        if isCurrentUserMessage {
+        if sentByCurrentUser {
             return 0
         } else {
             // Max offset should be set to 40% of center

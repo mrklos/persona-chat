@@ -9,20 +9,20 @@ import SwiftUI
 
 public struct ChatView: View {
     @State private var fullWidth: CGFloat = .zero
-    @State private var messages: [Message]
+    @State private var context: MessageContext
     @Binding var incomingMessage: Bool
     
-    public init(messages: [Message] = [], incomingMessage: Binding<Bool> = .constant(false)) {
-        self.messages = messages
+    public init(context: MessageContext, incomingMessage: Binding<Bool> = .constant(false)) {
+        self.context = context
         self._incomingMessage = incomingMessage
     }
     
     public var body: some View {
             ScrollView {
-                ForEach(messages) { message in
+                ForEach(context.messages) { message in
                     MessageView(message: message,
-                                isCurrentUserMessage: message.sender.isCurrentUser)
-                    .modifier(DynamicHorizontalOffset(isCurrentUserMessage: message.sender.isCurrentUser, containerWidth: fullWidth))
+                                sentByCurrentUser: message.sentByCurrentUser)
+                    .modifier(DynamicHorizontalOffset(sentByCurrentUser: message.sentByCurrentUser, containerWidth: fullWidth))
                 }
                 if incomingMessage {
                     HStack {
@@ -43,31 +43,3 @@ public struct ChatView: View {
             .background(.red)
     }
 }
-
-#Preview {
-    ChatView(messages: [
-        Message(sender: MessageSender(displayName: "Test user"),
-                content: MessageContent("Test")),
-        Message(sender: MessageSender(displayName: "Test user"),
-                content: MessageContent("Test Test Test")),
-        Message(sender: MessageSender(displayName: "Test user"),
-                content: MessageContent("Test Test Test Test Test")),
-        Message(sender: MessageSender(displayName: "Test user"),
-                content: MessageContent("Test Test Test Test")),
-        Message(sender: MessageSender(displayName: "Test user", isCurrentUser: true),
-                content: MessageContent("Test test test")),
-        Message(sender: MessageSender(displayName: "Test user"),
-                content: MessageContent("Test test text Test Test Test Test")),
-        Message(sender: MessageSender(displayName: "Test user"),
-                content: MessageContent("""
-Test test            test test test test test test test test test stestests
-                                        etsetestestest setestestesteststsetst
-        testesteste estest
-""")),
-        Message(sender: MessageSender(displayName: "Test user", isCurrentUser: true),
-                content: MessageContent("Test test test")),
-        Message(sender: MessageSender(displayName: "Test user"),
-                content: MessageContent("Test test text")),
-    ], incomingMessage: .constant(true))
-}
-

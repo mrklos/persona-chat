@@ -18,6 +18,6 @@ let package = Package(
             resources: [
                 .process("Media.xcassets")
             ]
-        ),
+        )
     ]
 )

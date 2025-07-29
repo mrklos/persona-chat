@@ -9,14 +9,17 @@ import Foundation
 
 public struct Message: Identifiable {
     public let id: String
-    let sender: MessageSender
-    let content: MessageContent
+    public let content: MessageContent
+    public let sentByCurrentUser: Bool
+    public let sentAt: Date
     
     public init(id: String = UUID().uuidString,
-                sender: MessageSender,
-                content: MessageContent) {
+                content: MessageContent,
+                sentByCurrentUser: Bool,
+                sentAt: Date) {
         self.id = id
-        self.sender = sender
         self.content = content
+        self.sentByCurrentUser = sentByCurrentUser
+        self.sentAt = sentAt
     }
 }

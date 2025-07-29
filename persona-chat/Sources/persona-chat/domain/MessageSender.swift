@@ -7,14 +7,19 @@
 
 import SwiftUI
 
-public struct MessageSender {
-    let displayName: String
-    let avatar: Image?
-    let isCurrentUser: Bool
+public struct MessageSender: Identifiable {
+    public let id: String
+    public let displayName: String
+    public let avatar: Image?
     
-    public init(displayName: String, avatar: Image? = nil, isCurrentUser: Bool = false) {
+    public init(id: String = UUID().uuidString, displayName: String, avatar: Image? = nil) {
+        self.id = id
         self.displayName = displayName
         self.avatar = avatar
-        self.isCurrentUser = isCurrentUser
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(displayName)
     }
 }
